@@ -1,0 +1,8 @@
+"","Identifiant","Age","Ancienneté","Part variable managériale","Part variable commerciale","Salaire","Heures supplémentaires"
+"Identifiant",1,-0.091,-0.061,-0.055,0.022,-0.055,0.042
+"Age",-0.091,1,0.855,0.062,-0.148,0.183,-0.035
+"Ancienneté",-0.061,0.855,1,-0.022,-0.158,-0.036,0.006
+"Part variable managériale",-0.055,0.062,-0.022,1,-0.142,0.79,-0.103
+"Part variable commerciale",0.022,-0.148,-0.158,-0.142,1,0.047,0.048
+"Salaire",-0.055,0.183,-0.036,0.79,0.047,1,-0.12
+"Heures supplémentaires",0.042,-0.035,0.006,-0.103,0.048,-0.12,1

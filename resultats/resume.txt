@@ -1,0 +1,20 @@
+============================================================================
+                      RESUME DE L'ANALYSE                                  
+============================================================================
+
+=== DONNEES ===
+- Fichier analyse : /Users/nicoduch/Documents/Dev/eslsca-r-ue10/datasets/examen_UE10.xlsx
+- Nombre d'observations : 556
+- Nombre de variables : 12
+- Variables quantitatives : 7
+- Variables qualitatives : 5
+- Valeurs manquantes : 4 ( 0.06 % )
+
+=== TESTS DE NORMALITE ===
+- Variables suivant une loi normale : 0 / 7
+
+=== RECOMMANDATIONS ===
+1. Verifier les valeurs aberrantes detectees avant interpretation
+2. Utiliser les tests non-parametriques si la normalite n'est pas respectee
+3. Reporter les tailles d'effet en plus des p-values
+4. Attention a l'interpretation des correlations (correlation != causalite)

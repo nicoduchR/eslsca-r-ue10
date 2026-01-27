@@ -1,0 +1,13 @@
+"Variable","Type","Nature","Valeurs_uniques","Valeurs_manquantes"
+"Identifiant","Quantitative continue","quanti",556,0
+"Contrat","Qualitative binaire","quali",2,0
+"Genre","Qualitative binaire","quali",2,0
+"Manager","Qualitative binaire","quali",2,0
+"Niveauhierarchique","Qualitative ordinale (probable)","quali",7,0
+"Taux de temps de travail","Qualitative ordinale (probable)","quali",7,0
+"Age","Quantitative continue","quanti",41,0
+"Ancienneté","Quantitative continue","quanti",43,0
+"Part variable managériale","Quantitative continue","quanti",194,0
+"Part variable commerciale","Quantitative continue","quanti",90,0
+"Salaire","Quantitative continue","quanti",519,4
+"Heures supplémentaires","Quantitative continue","quanti",67,0

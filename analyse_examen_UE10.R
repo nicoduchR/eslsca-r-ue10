@@ -19,6 +19,27 @@ for (pkg in packages_requis) {
   }
 }
 
+# Determiner le repertoire du projet (emplacement du script ou racine du projet)
+projet_dir <- tryCatch({
+  # Fonctionne dans RStudio quand on source le script
+  dirname(rstudioapi::getSourceEditorContext()$path)
+}, error = function(e) {
+  tryCatch({
+    # Fonctionne avec Rscript en ligne de commande
+    dirname(normalizePath(sub("--file=", "", commandArgs(trailingOnly = FALSE)[grep("--file=", commandArgs(trailingOnly = FALSE))])))
+  }, error = function(e2) {
+    # Fallback : chemin absolu du projet
+    "/Users/nicoduch/Documents/Dev/eslsca-r-ue10"
+  })
+})
+
+# Creation du dossier resultats et sous-dossiers
+chemin_resultats <- file.path(projet_dir, "resultats")
+dir.create(file.path(chemin_resultats, "01_descriptif", "stats_qualitatives"), recursive = TRUE, showWarnings = FALSE)
+dir.create(file.path(chemin_resultats, "02_tests"), recursive = TRUE, showWarnings = FALSE)
+dir.create(file.path(chemin_resultats, "03_graphiques"), recursive = TRUE, showWarnings = FALSE)
+cat("Dossier resultats :", chemin_resultats, "\n")
+
 # ----------------------------------------------------------------------------
 # 1. CHARGEMENT DES DONNEES
 # ----------------------------------------------------------------------------
@@ -112,6 +133,7 @@ for (i in seq_along(names(donnees))) {
 
 cat("\n=== CLASSIFICATION DES VARIABLES ===\n")
 print(classification, row.names = FALSE)
+write.csv(classification, file.path(chemin_resultats, "01_descriptif", "classification_variables.csv"), row.names = FALSE)
 
 # Separer les variables par type
 vars_quanti <- classification$Variable[classification$Nature == "quanti"]
@@ -171,6 +193,7 @@ if (length(vars_quanti) > 0) {
   }
 
   print(stats_quanti, row.names = FALSE)
+  write.csv(stats_quanti, file.path(chemin_resultats, "01_descriptif", "stats_quantitatives.csv"), row.names = FALSE)
 }
 
 # --- Variables qualitatives ---
@@ -189,6 +212,7 @@ if (length(vars_quali) > 0) {
       Pourcentage = paste0(round(as.vector(prop), 1), "%")
     )
     print(recap, row.names = FALSE)
+    write.csv(recap, file.path(chemin_resultats, "01_descriptif", "stats_qualitatives", paste0(var, ".csv")), row.names = FALSE)
 
     mode_val <- names(which.max(tab))
     cat("Mode :", mode_val, "(", max(tab), "occurrences )\n")
@@ -244,6 +268,7 @@ if (length(vars_quanti) > 0) {
 
   cat("\n")
   print(outliers_summary, row.names = FALSE)
+  write.csv(outliers_summary, file.path(chemin_resultats, "01_descriptif", "outliers.csv"), row.names = FALSE)
 }
 
 # ----------------------------------------------------------------------------
@@ -284,6 +309,7 @@ if (length(vars_quanti) > 0) {
   }
 
   print(normalite, row.names = FALSE)
+  write.csv(normalite, file.path(chemin_resultats, "02_tests", "normalite.csv"), row.names = FALSE)
   cat("\nInterpretation : p > 0.05 = normalite non rejetee (test parametrique possible)\n")
   cat("                 p <= 0.05 = normalite rejetee (test non-parametrique recommande)\n")
 }
@@ -307,6 +333,7 @@ if (length(vars_quanti) >= 2) {
   if (nrow(donnees_quanti) > 2) {
     cor_matrix <- cor(donnees_quanti, method = "pearson")
     print(round(cor_matrix, 3))
+    write.csv(round(cor_matrix, 3), file.path(chemin_resultats, "02_tests", "correlations_pearson.csv"))
 
     cat("\n=== INTERPRETATION DES CORRELATIONS ===\n")
     cat("0.00 - 0.10 : Negligeable\n")
@@ -319,12 +346,19 @@ if (length(vars_quanti) >= 2) {
     cat("\n=== MATRICE DE CORRELATIONS (Spearman - non-parametrique) ===\n\n")
     cor_spearman <- cor(donnees_quanti, method = "spearman")
     print(round(cor_spearman, 3))
+    write.csv(round(cor_spearman, 3), file.path(chemin_resultats, "02_tests", "correlations_spearman.csv"))
   }
 }
 
 # --- Comparaison de groupes ---
 if (length(vars_quali) > 0 && length(vars_quanti) > 0) {
   cat("\n=== COMPARAISONS DE GROUPES ===\n")
+
+  resultats_comparaisons <- data.frame(
+    Var_quali = character(), Var_quanti = character(), Test = character(),
+    Statistique = numeric(), p_value = numeric(), Taille_effet = numeric(),
+    Significatif = character(), stringsAsFactors = FALSE
+  )
 
   for (var_quali in vars_quali) {
     groupes <- unique(donnees[[var_quali]])
@@ -395,8 +429,17 @@ if (length(vars_quali) > 0 && length(vars_quanti) > 0) {
                 d <- (mean(g1) - mean(g2)) / sqrt(pooled_var)
                 cat("  d de Cohen =", round(d, 3), "\n")
               } else {
+                d <- NA
                 cat("  d de Cohen = NA (variance nulle)\n")
               }
+
+              test_name <- ifelse(var_ratio < 4, "t-test", "Welch t-test")
+              resultats_comparaisons <- rbind(resultats_comparaisons, data.frame(
+                Var_quali = var_quali, Var_quanti = var_quanti, Test = test_name,
+                Statistique = round(test$statistic, 3), p_value = round(test$p.value, 4),
+                Taille_effet = round(d, 3), Significatif = ifelse(test$p.value < 0.05, "OUI", "NON"),
+                stringsAsFactors = FALSE
+              ))
 
             } else {
               # Test non-parametrique
@@ -409,6 +452,13 @@ if (length(vars_quali) > 0 && length(vars_quanti) > 0) {
               z <- qnorm(test$p.value / 2)
               r <- abs(z) / sqrt(length(x))
               cat("  r =", round(r, 3), "\n")
+
+              resultats_comparaisons <- rbind(resultats_comparaisons, data.frame(
+                Var_quali = var_quali, Var_quanti = var_quanti, Test = "Mann-Whitney",
+                Statistique = round(test$statistic, 1), p_value = round(test$p.value, 4),
+                Taille_effet = round(r, 3), Significatif = ifelse(test$p.value < 0.05, "OUI", "NON"),
+                stringsAsFactors = FALSE
+              ))
             }
 
             # Interpretation
@@ -454,6 +504,13 @@ if (length(vars_quali) > 0 && length(vars_quanti) > 0) {
               eta_sq <- ss_between / ss_total
               cat("  Eta-squared =", round(eta_sq, 3), "\n")
 
+              resultats_comparaisons <- rbind(resultats_comparaisons, data.frame(
+                Var_quali = var_quali, Var_quanti = var_quanti, Test = "ANOVA",
+                Statistique = round(f_val, 3), p_value = round(p_val, 4),
+                Taille_effet = round(eta_sq, 3), Significatif = ifelse(p_val < 0.05, "OUI", "NON"),
+                stringsAsFactors = FALSE
+              ))
+
               if (p_val < 0.05) {
                 cat("  --> Difference significative entre les groupes\n")
                 cat("  Test post-hoc de Tukey HSD recommande\n")
@@ -471,6 +528,13 @@ if (length(vars_quali) > 0 && length(vars_quanti) > 0) {
               cat("  ddl =", test$parameter, "\n")
               cat("  p =", format(test$p.value, digits = 4), "\n")
 
+              resultats_comparaisons <- rbind(resultats_comparaisons, data.frame(
+                Var_quali = var_quali, Var_quanti = var_quanti, Test = "Kruskal-Wallis",
+                Statistique = round(test$statistic, 3), p_value = round(test$p.value, 4),
+                Taille_effet = NA, Significatif = ifelse(test$p.value < 0.05, "OUI", "NON"),
+                stringsAsFactors = FALSE
+              ))
+
               if (test$p.value < 0.05) {
                 cat("  --> Difference significative entre les groupes\n")
                 cat("  Test post-hoc de Dunn recommande\n")
@@ -483,11 +547,19 @@ if (length(vars_quali) > 0 && length(vars_quanti) > 0) {
       }
     }
   }
+
+  write.csv(resultats_comparaisons, file.path(chemin_resultats, "02_tests", "comparaisons_groupes.csv"), row.names = FALSE)
 }
 
 # --- Tests du Khi-deux pour variables qualitatives ---
 if (length(vars_quali) >= 2) {
   cat("\n=== TESTS D'INDEPENDANCE DU KHI-DEUX ===\n")
+
+  resultats_khi2 <- data.frame(
+    Var1 = character(), Var2 = character(), Test = character(),
+    Statistique = numeric(), ddl = numeric(), p_value = numeric(),
+    V_Cramer = numeric(), Significatif = character(), stringsAsFactors = FALSE
+  )
 
   for (i in 1:(length(vars_quali) - 1)) {
     for (j in (i + 1):length(vars_quali)) {
@@ -513,11 +585,23 @@ if (length(vars_quali) >= 2) {
             test <- fisher.test(tab)
             cat("\nTest exact de Fisher (effectifs faibles) :\n")
             cat("  p =", format(test$p.value, digits = 4), "\n")
+            resultats_khi2 <- rbind(resultats_khi2, data.frame(
+              Var1 = var1, Var2 = var2, Test = "Fisher exact",
+              Statistique = NA, ddl = NA, p_value = round(test$p.value, 4),
+              V_Cramer = NA, Significatif = ifelse(test$p.value < 0.05, "OUI", "NON"),
+              stringsAsFactors = FALSE
+            ))
           } else {
             test <- chisq.test(tab, simulate.p.value = TRUE)
             cat("\nKhi-deux avec simulation Monte Carlo (effectifs faibles) :\n")
             cat("  X2 =", round(test$statistic, 3), "\n")
             cat("  p =", format(test$p.value, digits = 4), "\n")
+            resultats_khi2 <- rbind(resultats_khi2, data.frame(
+              Var1 = var1, Var2 = var2, Test = "Khi-deux Monte Carlo",
+              Statistique = round(test$statistic, 3), ddl = NA, p_value = round(test$p.value, 4),
+              V_Cramer = NA, Significatif = ifelse(test$p.value < 0.05, "OUI", "NON"),
+              stringsAsFactors = FALSE
+            ))
           }
         } else {
           test <- chisq.test(tab)
@@ -531,6 +615,14 @@ if (length(vars_quali) >= 2) {
           min_dim <- min(nrow(tab), ncol(tab)) - 1
           v_cramer <- sqrt(test$statistic / (n * min_dim))
           cat("  V de Cramer =", round(v_cramer, 3), "\n")
+
+          resultats_khi2 <- rbind(resultats_khi2, data.frame(
+            Var1 = var1, Var2 = var2, Test = "Khi-deux",
+            Statistique = round(test$statistic, 3), ddl = test$parameter,
+            p_value = round(test$p.value, 4), V_Cramer = round(v_cramer, 3),
+            Significatif = ifelse(test$p.value < 0.05, "OUI", "NON"),
+            stringsAsFactors = FALSE
+          ))
         }
 
         if (test$p.value < 0.05) {
@@ -541,6 +633,8 @@ if (length(vars_quali) >= 2) {
       }
     }
   }
+
+  write.csv(resultats_khi2, file.path(chemin_resultats, "02_tests", "khi_deux.csv"), row.names = FALSE)
 }
 
 # ----------------------------------------------------------------------------
@@ -554,11 +648,12 @@ cat("===========================================================================
 
 cat("\nGeneration des graphiques...\n")
 
-# Configurer la sortie graphique
-par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+chemin_graphiques <- file.path(chemin_resultats, "03_graphiques")
 
 # --- Histogrammes des variables quantitatives ---
 if (length(vars_quanti) > 0) {
+  png(file.path(chemin_graphiques, "histogrammes.png"), width = 1200, height = 900, res = 150)
+  par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
   for (var in vars_quanti[1:min(4, length(vars_quanti))]) {
     x <- donnees[[var]]
     x_clean <- x[!is.na(x)]
@@ -574,10 +669,8 @@ if (length(vars_quanti) > 0) {
     # Ajouter la courbe de densite
     lines(density(x_clean), col = "red", lwd = 2)
   }
+  dev.off()
 }
-
-# Reset layout
-par(mfrow = c(1, 1))
 
 # --- Boxplots ---
 if (length(vars_quali) > 0 && length(vars_quanti) > 0) {
@@ -586,8 +679,8 @@ if (length(vars_quali) > 0 && length(vars_quanti) > 0) {
   for (var_quali in vars_quali[1:min(2, length(vars_quali))]) {
     for (var_quanti in vars_quanti[1:min(2, length(vars_quanti))]) {
 
-      # Nouvelle fenetre graphique
-      dev.new()
+      png(file.path(chemin_graphiques, paste0("boxplot_", var_quanti, "_par_", var_quali, ".png")),
+          width = 800, height = 600, res = 150)
 
       couleurs <- rainbow(length(unique(donnees[[var_quali]])))
 
@@ -602,6 +695,8 @@ if (length(vars_quali) > 0 && length(vars_quanti) > 0) {
       moyennes <- tapply(donnees[[var_quanti]], donnees[[var_quali]], mean, na.rm = TRUE)
       points(1:length(moyennes), moyennes, pch = 18, col = "darkred", cex = 1.5)
       legend("topright", legend = "Moyenne", pch = 18, col = "darkred", bg = "white")
+
+      dev.off()
     }
   }
 }
@@ -610,7 +705,7 @@ if (length(vars_quali) > 0 && length(vars_quanti) > 0) {
 if (length(vars_quali) > 0) {
   cat("\nGeneration des diagrammes en barres...\n")
 
-  dev.new()
+  png(file.path(chemin_graphiques, "barres_qualitatives.png"), width = 1200, height = 900, res = 150)
   par(mfrow = c(ceiling(length(vars_quali) / 2), 2), mar = c(4, 4, 3, 1))
 
   for (var in vars_quali) {
@@ -624,20 +719,21 @@ if (length(vars_quali) > 0) {
             las = 1)
   }
 
-  par(mfrow = c(1, 1))
+  dev.off()
 }
 
 # --- Nuage de points pour correlations ---
 if (length(vars_quanti) >= 2) {
   cat("\nGeneration des nuages de points...\n")
 
-  dev.new()
-
   n_vars <- min(4, length(vars_quanti))
+
+  png(file.path(chemin_graphiques, "nuage_points.png"), width = 1200, height = 1200, res = 150)
   pairs(donnees[, vars_quanti[1:n_vars]],
         main = "Matrice des nuages de points",
         pch = 19,
         col = rgb(0.2, 0.4, 0.6, 0.5))
+  dev.off()
 }
 
 cat("\nGraphiques generes avec succes !\n")
@@ -684,4 +780,36 @@ cat("===========================================================================
 cat("                       ANALYSE TERMINEE                                    \n")
 cat("============================================================================\n")
 cat("\nConsultez les graphiques dans le panneau Plots ou les fenetres ouvertes.\n")
-cat("Pour exporter les resultats, utilisez les fonctions sink() ou write.csv().\n")
+cat("Les resultats ont ete sauvegardes dans le dossier resultats/\n")
+
+# Ecriture du resume textuel
+resume <- c(
+  "============================================================================",
+  "                      RESUME DE L'ANALYSE                                  ",
+  "============================================================================",
+  "",
+  "=== DONNEES ===",
+  paste("- Fichier analyse :", fichier),
+  paste("- Nombre d'observations :", nrow(donnees)),
+  paste("- Nombre de variables :", ncol(donnees)),
+  paste("- Variables quantitatives :", length(vars_quanti)),
+  paste("- Variables qualitatives :", length(vars_quali)),
+  paste("- Valeurs manquantes :", sum(is.na(donnees)), "(", round(sum(is.na(donnees)) / (nrow(donnees) * ncol(donnees)) * 100, 2), "% )")
+)
+
+if (exists("normalite") && nrow(normalite) > 0) {
+  resume <- c(resume, "",
+    "=== TESTS DE NORMALITE ===",
+    paste("- Variables suivant une loi normale :", sum(normalite$Normal == "OUI"), "/", nrow(normalite))
+  )
+}
+
+resume <- c(resume, "",
+  "=== RECOMMANDATIONS ===",
+  "1. Verifier les valeurs aberrantes detectees avant interpretation",
+  "2. Utiliser les tests non-parametriques si la normalite n'est pas respectee",
+  "3. Reporter les tailles d'effet en plus des p-values",
+  "4. Attention a l'interpretation des correlations (correlation != causalite)"
+)
+
+writeLines(resume, file.path(chemin_resultats, "resume.txt"))
