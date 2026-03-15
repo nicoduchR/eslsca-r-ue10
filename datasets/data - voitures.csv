@@ -1,0 +1,99 @@
+identifiant;marque;modele;energie;annee;kilometrage;prix
+id1;Renault ;clio;diesel;2013;15 000;11 000
+id2;Renault ;megane;diesel;2019;70 000;8 000
+id3;Renault ;captur;essence;2010;123 000;6 500
+id4;Renault ;twigo;diesel;2012;232 000;2 400
+id5;Renault ;megane;diesel;2013;198 000;5 600
+id6;Renault ;megane;diesel;2010;212 000;5 000
+id7;Renault ;captur;electrique;2018;109 000;7 800
+id8;Renault ;twigo;diesel;2007;298 000;1 900
+id9;Renault ;captur;hybride;2022;43 000;19 000
+id10;Renault ;twigo;diesel;2009;89 000;3 000
+id11;Renault ;clio;hybride;2020;80 000;15000
+id12;Renault ;clio;hybride;2020;74 000;14 800
+id13;Renault ;clio;hybride;2018;142 000;7 000
+id14;Renault ;clio;diesel;2001;193 000;2 900
+id15;Renault ;twigo;diesel;2006;312 000;2 100
+id16;Renault ;captur;electrique;2021;98 000;16 500
+id17;Renault ;twigo;diesel;2006;197 000;2 200
+id18;Renault ;clio;hybride;2021;60 100;16 700
+id19;Renault ;clio;hybride;2017;156 000;5 800
+id20;Renault ;captur;diesel;2011;184 000;6 000
+id21;Renault ;captur;hybride;2023;56 000;19 000
+id22;Renault ;captur;electrique;2024;23 000;28 000
+id23;Peugeot;308;diesel;2012;232 000;2 400
+id24;Peugeot;2008;diesel;2013;198 000;5 600
+id25;Peugeot;2008;diesel;2010;212 000;5 000
+id26;Peugeot;308;diesel;2018;109 000;7 800
+id27;Peugeot;2008;hybride;2023;56 000;19 000
+id28;Peugeot;2008;electrique;2024;23 000;28 000
+id29;Peugeot;508;diesel;2012;232 000;2 400
+id30;Audi;A1;diesel;2013;198 000;5 600
+id31;Audi;A1;diesel;2010;212 000;5 000
+id32;Audi;A1;diesel;2025;32 000;32 900
+id33;Audi;A2;essence;2012;232 000;2 400
+id34;Audi;A2;essence;2013;198 000;5 600
+id35;Audi;A3;essence;2010;187 000;4 800
+id36;Audi;A1;essence;2018;109 000;7 800
+id37;Audi;A1;diesel;2006;197 000;4 200
+id38;Audi;A3;hybride;2021;60 100;17 000
+id39;Audi;A3;hybride;2017;156 000;5 800
+id40;Audi;A3;hybride;2023;56 000;19 000
+id41;Audi;Q4;electrique;2024;68 000;36 000
+id42;Audi;Q3;diesel;2019;70 000;21 000
+id43;Audi;Q2;essence;2010;123 000;9 500
+id44;Audi;A3;diesel;2012;212 000;6 800
+id45;Audi;A2;diesel;2013;487 000;5 400
+id46;Audi;A2;essence;2017;150 000;5 800
+id47;Audi;A3;diesel;2006;498 000;3 900
+id48;Audi;Q3;hybride;2019;201 000;14 000
+id49;Audi;A3;diesel;2021;60 100;17 000
+id50;Audi;A3;essence;2017;156 000;5 800
+id51;Audi;A3;diesel;2023;45 000;21 000
+id52;Audi;Q3;diesel;2019;70 000;21 000
+id53;Audi;Q2;essence;2010;123 000;9 500
+id54;Audi;A3;diesel;2010;213 000;7 600
+id55;Audi;A2;diesel;2013;487 000;5 400
+id56;Audi;A1;diesel;2013;198 000;5 600
+id57;Audi;A1;essence;2010;340 000;5 400
+id58;Audi;A1;diesel;2025;21 000;33 000
+id59;Audi;A2;essence;2012;232 000;4 300
+id60;Audi;A2;essence;2013;198 000;5 600
+id61;Audi;A3;essence;2010;187 000;4 800
+id62;Toyota;Yaris;essence;2019;63 000;12 000
+id63;Toyota;Yaris;essence;2009;198 000;5 000
+id64;Toyota;Yaris;essence;2017;56 000;23 000
+id65;Toyota;Yaris;hybride;2024;18 000;20 000
+id66;Toyota;Yaris;hybride;2018;149 000;11 500
+id67;Toyota;Yaris;hybride;2022;38 000;17 000
+id68;Toyota;Yaris;hybride;2024;16 000;20 000
+id69;Toyota;Yaris;essence;2015;100 000;6 700
+id70;Toyota;Yaris;hybride;2024;8 500;20 000
+id71;Toyota;Yaris;diesel;2012;205 000;4 400
+id72;Toyota;Yaris;essence;2007;65 000;7 000
+id73;Toyota;Yaris;essence;2018;87 000;11 000
+id74;Toyota;Yaris;essence;2008;107 000;4 500
+id75;Toyota;Yaris;hybride;2023;100;18 000
+id76;Toyota;Yaris;hybride;2019;91 000;11 000
+id77;Toyota;Rav 4;diesel;2015;221 000;8 900
+id78;Toyota;Rav 4;hybride;2021;87 000;30 000
+id79;Toyota;Rav 4;diesel;2013;207 000;10 000
+id80;Toyota;Rav 4;hybride;2019;98 000;28 000
+id81;Toyota;Rav 4;hybride;2025;8 000;45 000
+id82;Toyota;Rav 4;hybride;2021;145 000;21 000
+id83;Toyota;Rav 4;hybride;2018;89 000;20 000
+id84;Toyota;Rav 4;hybride;2022;59 000;32 000
+id85;Toyota;Rav 4;hybride;2023;23 000;39 000
+id86;Toyota;Rav 4;hybride;2025;17 000;42 900
+id87;Toyota;Rav 4;diesel;2018;87 000;12 000
+id88;Toyota;Rav 4;diesel;2016;201 000;10 000
+id89;Toyota;Supra;essence;2020;10 000;46 000
+id90;Toyota;Supra;essence;1992;89 000;23 000
+id91;Toyota;Supra;essence;2020;77 000;52 000
+id92;Toyota;Supra;essence;2019;49 000;56 000
+id93;BMW;Z1;essence;1990;16 000;80 000
+id94;BMW;X1;diesel;2022;85 000;30 000
+id95;BMW;X1;essence;2022;29 000;38 000
+id96;BMW;X1;diesel;2014;156 000;9 000
+id97;BMW;X1;essence;2011;172 000;8 400
+id98;BMW;X1;essence;2019;82 000;19 000
