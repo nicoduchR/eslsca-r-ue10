@@ -21,7 +21,7 @@ print(head(donnees))
 cat("\n\n=== STATISTIQUES DU MONTANT PAR MARQUE ===\n")
 
 # Calculer les statistiques par marque
-stats_marque <- aggregate(Montant ~ Marque, data = donnees, FUN = function(x) {
+stats_marque <- aggregate(Montant ~ Origine, data = donnees, FUN = function(x) {
   c(Min = min(x),
     Q1 = quantile(x, 0.25),
     Mediane = median(x),
